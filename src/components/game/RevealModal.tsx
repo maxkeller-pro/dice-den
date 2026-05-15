@@ -1,6 +1,7 @@
 import { Die } from "./Die";
 import { Button } from "@/components/ui/button";
 import type { Player, Round } from "@/hooks/useGameState";
+import { useT } from "@/lib/i18n";
 import { Skull, Target, Trophy } from "lucide-react";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function RevealModal({ round, players, onNext, busy }: Props) {
+  const { t } = useT();
   const nameOf = (id?: string | null) => players.find((p) => p.user_id === id)?.username ?? "Player";
   const snap = round.dice_snapshot ?? [];
   const targetFace = round.last_bid_face!;
@@ -22,7 +24,7 @@ export function RevealModal({ round, players, onNext, busy }: Props) {
       <div className="glass w-full max-w-lg rounded-3xl p-6 shadow-elevated">
         <div className="mb-4 text-center">
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-            {round.call_type === "dudo" ? "Dudo called" : "Calza called"} by {nameOf(round.caller_id)}
+            {round.call_type === "dudo" ? t("reveal.dudo_called") : t("reveal.calza_called")} {nameOf(round.caller_id)}
           </div>
           <h2 className="mt-1 font-display text-3xl font-bold">
             {round.call_type === "dudo"
@@ -30,8 +32,8 @@ export function RevealModal({ round, players, onNext, busy }: Props) {
               : <span className="text-[var(--cyan)] text-glow-cyan"><Target className="inline h-7 w-7 mr-2" />CALZA</span>}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Bid was <b className="text-foreground">{round.last_bid_quantity} × {targetFace}</b>
-            {" — "}actual count: <b className="text-foreground">{round.actual_count}</b>
+            {t("reveal.bid_was")} <b className="text-foreground">{round.last_bid_quantity} × {targetFace}</b>
+            {" — "}{t("reveal.actual")} <b className="text-foreground">{round.actual_count}</b>
           </p>
         </div>
 
@@ -52,12 +54,12 @@ export function RevealModal({ round, players, onNext, busy }: Props) {
         <div className="mt-4 text-center">
           {round.loser_id ? (
             <p className="text-sm">
-              <b>{nameOf(round.loser_id)}</b> loses a die
+              <b>{nameOf(round.loser_id)}</b> {t("reveal.loses_die")}
             </p>
           ) : (
             <p className="text-sm text-[var(--cyan)]">
               <Trophy className="inline h-4 w-4 mr-1" />
-              <b>{nameOf(round.caller_id)}</b> wins a die back
+              <b>{nameOf(round.caller_id)}</b> {t("reveal.wins_die")}
             </p>
           )}
         </div>
@@ -68,7 +70,7 @@ export function RevealModal({ round, players, onNext, busy }: Props) {
           size="lg"
           className="mt-5 w-full h-12 font-display font-bold bg-gradient-to-br from-[var(--violet)] to-[var(--cyan)] text-white"
         >
-          Next round
+          {t("reveal.next")}
         </Button>
       </div>
     </div>
