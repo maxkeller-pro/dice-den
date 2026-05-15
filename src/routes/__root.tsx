@@ -77,10 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "A modern multiplayer bluffing dice game. Create a private room, share the code, and play in your browser." },
       { name: "author", content: "Liar's Dice" },
       { property: "og:title", content: "Liar's Dice — Bluff. Bid. Survive." },
-      { property: "og:description", content: "A modern multiplayer bluffing dice game playable in the browser." },
+      { property: "og:description", content: "A modern multiplayer bluffing dice game. Create a private room, share the code, and play in your browser." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#0a0814" },
+      { name: "twitter:title", content: "Liar's Dice — Bluff. Bid. Survive." },
+      { name: "twitter:description", content: "A modern multiplayer bluffing dice game. Create a private room, share the code, and play in your browser." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/238959aa-3b2d-4070-8ef7-42c3d096dea5/id-preview-de2f814b--05655384-ce62-444c-b00c-a075a694f18f.lovable.app-1778874288182.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/238959aa-3b2d-4070-8ef7-42c3d096dea5/id-preview-de2f814b--05655384-ce62-444c-b00c-a075a694f18f.lovable.app-1778874288182.png" },
     ],
     links: [
       {
