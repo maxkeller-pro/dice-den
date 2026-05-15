@@ -38,7 +38,7 @@ function Landing() {
               {isGuest ? <span className="hidden sm:inline">{t("common.signin")}</span> : <span className="hidden sm:inline">{username || t("common.account")}{stats ? ` · ${stats.elo}` : ""}</span>}
             </Button>
           </Link>
-          <Link to="/play">
+          <Link to="/games">
             <Button size="sm" variant="ghost" className="font-display">{t("common.play")}</Button>
           </Link>
         </nav>
@@ -59,12 +59,12 @@ function Landing() {
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link to="/play" className="w-full sm:w-auto">
+          <Link to="/games" className="w-full sm:w-auto">
             <Button size="lg" className="w-full sm:w-auto h-14 px-8 font-display font-bold text-base bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] text-white shadow-glow-violet hover:brightness-110">
               {t("landing.cta.start")}
             </Button>
           </Link>
-          <Link to="/play" className="w-full sm:w-auto">
+          <Link to="/games" className="w-full sm:w-auto">
             <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 font-display font-bold text-base border-white/15 hover:bg-white/5">
               {t("landing.cta.join")}
             </Button>

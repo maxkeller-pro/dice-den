@@ -42,7 +42,7 @@ function Auth() {
         await signInWithEmail(email.trim(), password);
         toast.success(t("auth.toast.welcome"));
       }
-      nav({ to: "/" });
+      nav({ to: "/games" });
     } catch (e: any) {
       toast.error(e.message ?? t("auth.toast.fail"));
     } finally {
