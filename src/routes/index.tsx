@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Die } from "@/components/game/Die";
-import { Dices, Sparkles, Users, Zap } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Dices, Sparkles, Users, Zap, Trophy, User } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { isGuest, stats, username } = useAuth();
   return (
     <main className="relative min-h-dvh overflow-hidden">
       <div className="grid-bg pointer-events-none absolute inset-0 opacity-30" />
@@ -23,9 +25,20 @@ function Landing() {
           <Dices className="h-5 w-5 text-[var(--violet)]" />
           <span>LIAR<span className="text-[var(--cyan)]">.</span>DICE</span>
         </div>
-        <Link to="/play">
-          <Button size="sm" variant="ghost" className="font-display">Play</Button>
-        </Link>
+        <nav className="flex items-center gap-1">
+          <Link to="/leaderboard">
+            <Button size="sm" variant="ghost" className="font-display gap-1.5"><Trophy className="h-4 w-4" /><span className="hidden sm:inline">Ranking</span></Button>
+          </Link>
+          <Link to="/auth">
+            <Button size="sm" variant="ghost" className="font-display gap-1.5">
+              <User className="h-4 w-4" />
+              {isGuest ? <span className="hidden sm:inline">Sign in</span> : <span className="hidden sm:inline">{username || "Account"}{stats ? ` · ${stats.elo}` : ""}</span>}
+            </Button>
+          </Link>
+          <Link to="/play">
+            <Button size="sm" variant="ghost" className="font-display">Play</Button>
+          </Link>
+        </nav>
       </header>
 
       <section className="relative z-10 mx-auto max-w-3xl px-5 pt-10 sm:pt-20 text-center">
