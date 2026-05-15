@@ -297,6 +297,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -319,6 +340,13 @@ export type Database = {
         Returns: string
       }
       gen_game_code: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       rpc_call_calza: { Args: { p_game_id: string }; Returns: undefined }
       rpc_call_dudo: { Args: { p_game_id: string }; Returns: undefined }
       rpc_create_game: {
@@ -338,6 +366,7 @@ export type Database = {
       rpc_start_game: { Args: { p_game_id: string }; Returns: undefined }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       game_status: "lobby" | "playing" | "ended"
     }
     CompositeTypes: {
@@ -466,6 +495,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       game_status: ["lobby", "playing", "ended"],
     },
   },
