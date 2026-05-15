@@ -16,6 +16,11 @@ export function useAuth() {
         const id = await ensureSignedIn();
         if (!mounted) return;
         setUserId(id);
+        // Derive guest status from the session itself for instant UI updates,
+        // independent of any DB trigger latency on the profiles row.
+        const { data: sess } = await supabase.auth.getSession();
+        const u = sess.session?.user;
+        const sessionGuest = Boolean((u as any)?.is_anonymous) || !u?.email;
         const { data } = await supabase
           .from("profiles")
           .select("username, is_guest, elo, wins, losses, games_played")
@@ -23,7 +28,7 @@ export function useAuth() {
           .maybeSingle();
         if (!mounted) return;
         if (data?.username) setUsernameState(data.username);
-        setIsGuest(data?.is_guest ?? true);
+        setIsGuest(sessionGuest && (data?.is_guest ?? true));
         if (data) setStats({ elo: data.elo, wins: data.wins, losses: data.losses, games_played: data.games_played });
       } finally {
         if (mounted) setLoading(false);
