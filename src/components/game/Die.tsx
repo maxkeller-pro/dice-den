@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
+import parrotImg from "@/assets/parrot.png";
 
 const DOTS: Record<number, [number, number][]> = {
-  1: [[2, 2]],
   2: [[1, 1], [3, 3]],
   3: [[1, 1], [2, 2], [3, 3]],
   4: [[1, 1], [1, 3], [3, 1], [3, 3]],
@@ -36,6 +36,15 @@ export function Die({ value, size = "md", hidden, highlight, rolling, className 
     >
       {hidden ? (
         <span className="font-display text-xl font-bold opacity-70">?</span>
+      ) : value === 1 ? (
+        <img
+          src={parrotImg}
+          alt="Parrot (wild)"
+          loading="lazy"
+          width={512}
+          height={512}
+          className="h-[80%] w-[80%] object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+        />
       ) : value ? (
         <div className="grid h-[70%] w-[70%] grid-cols-3 grid-rows-3">
           {Array.from({ length: 9 }).map((_, i) => {
