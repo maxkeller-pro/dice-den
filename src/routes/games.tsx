@@ -18,7 +18,7 @@ type Game = {
   id: string;
   title: string;
   desc: { fr: string; en: string };
-  to?: "/play";
+  to?: "/play" | "/yams";
   available: boolean;
   badge?: { fr: string; en: string };
   accent: string;
@@ -48,8 +48,8 @@ const GAMES: Game[] = [
     id: "yams",
     title: "Yams",
     desc: { fr: "Le grand classique des combinaisons de dés.", en: "The classic dice combo game." },
-    available: false,
-    badge: { fr: "Bientôt", en: "Soon" },
+    to: "/yams",
+    available: true,
     accent: "from-amber-500 to-rose-400",
   },
   {
