@@ -9,7 +9,7 @@ import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Dices, ArrowLeft, Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/yams")({
+export const Route = createFileRoute("/yams/")({
   component: YamsLobby,
   head: () => ({ meta: [{ title: "Yams — Lovable Games" }, { name: "description", content: "Jouer au Yams en ligne avec des amis." }] }),
 });
