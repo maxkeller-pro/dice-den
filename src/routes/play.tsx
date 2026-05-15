@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { setUsername } from "@/lib/auth";
 import { createGame, joinGame } from "@/lib/game-api";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Dices, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/play")({
 
 function Play() {
   const { userId, username, setUsernameState, loading, isGuest, stats } = useAuth();
+  const { t } = useT();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -39,12 +41,12 @@ function Play() {
       const { code: c } = await createGame();
       nav({ to: "/room/$code", params: { code: c } });
     } catch (e: any) {
-      toast.error(e.message ?? "Could not create room");
+      toast.error(e.message ?? t("play.error.create"));
     } finally { setBusy(false); }
   }
 
   async function onJoin() {
-    if (!code.trim()) { toast.error("Enter a room code"); return; }
+    if (!code.trim()) { toast.error(t("play.error.no_code")); return; }
     setBusy(true);
     try {
       await persistName();
@@ -52,7 +54,7 @@ function Play() {
       const { data } = await supabase.from("games").select("code").eq("code", code.trim().toUpperCase()).maybeSingle();
       nav({ to: "/room/$code", params: { code: data?.code ?? code.trim().toUpperCase() } });
     } catch (e: any) {
-      toast.error(e.message ?? "Could not join");
+      toast.error(e.message ?? t("play.error.join"));
     } finally { setBusy(false); }
   }
 
@@ -69,52 +71,52 @@ function Play() {
       <div className="grid-bg pointer-events-none absolute inset-0 opacity-30" />
       <div className="relative z-10 mx-auto max-w-md px-5 py-8">
         <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Home
+          <ArrowLeft className="h-4 w-4" /> {t("common.home")}
         </Link>
 
         <div className="mt-6 flex items-center gap-2 font-display text-xl font-bold">
           <Dices className="h-6 w-6 text-[var(--violet)]" />
-          Enter the table
+          {t("play.title")}
         </div>
 
         <div className="mt-3 glass rounded-xl px-4 py-2.5 flex items-center justify-between text-xs">
           {isGuest ? (
             <>
-              <span className="text-muted-foreground">Playing as <span className="text-foreground font-display">guest</span></span>
-              <Link to="/auth" className="text-[var(--cyan)] font-display hover:underline">Save my stats →</Link>
+              <span className="text-muted-foreground">{t("play.guest_label")} <span className="text-foreground font-display">{t("play.guest_value")}</span></span>
+              <Link to="/auth" className="text-[var(--cyan)] font-display hover:underline">{t("play.save_stats")}</Link>
             </>
           ) : (
             <>
               <span className="text-muted-foreground"><span className="text-foreground font-display">{username}</span> · Elo <span className="text-[var(--cyan)] font-mono">{stats?.elo ?? "—"}</span></span>
-              <Link to="/auth" className="text-muted-foreground hover:text-foreground">Account</Link>
+              <Link to="/auth" className="text-muted-foreground hover:text-foreground">{t("common.account")}</Link>
             </>
           )}
         </div>
 
         <div className="mt-6 glass rounded-2xl p-5 space-y-3">
-          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground">Display name</label>
+          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground">{t("play.display_name")}</label>
           <Input
-            placeholder={username || "Your alias"}
+            placeholder={username || t("play.placeholder.name")}
             maxLength={24}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="h-12 bg-black/30 border-white/10 font-display"
           />
-          <p className="text-[11px] text-muted-foreground">{displayName ? `Playing as ${displayName}` : "Pick a name"}</p>
+          <p className="text-[11px] text-muted-foreground">{displayName ? t("play.playing_as", { name: displayName }) : t("play.pick_name")}</p>
         </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="glass rounded-2xl p-5">
-            <h3 className="font-display text-lg font-semibold">Create</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Spin up a private room and share the code.</p>
+            <h3 className="font-display text-lg font-semibold">{t("play.create")}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{t("play.create_desc")}</p>
             <Button onClick={onCreate} disabled={busy} className="mt-4 w-full h-12 font-display font-bold bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] text-white shadow-glow-violet">
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create room"}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("play.create_cta")}
             </Button>
           </div>
 
           <div className="glass rounded-2xl p-5">
-            <h3 className="font-display text-lg font-semibold">Join</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Enter a 6-character code.</p>
+            <h3 className="font-display text-lg font-semibold">{t("play.join")}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{t("play.join_desc")}</p>
             <Input
               placeholder="ABC123"
               maxLength={6}
@@ -123,7 +125,7 @@ function Play() {
               className="mt-4 h-12 bg-black/30 border-white/10 font-mono text-center text-lg tracking-[0.5em] uppercase"
             />
             <Button onClick={onJoin} disabled={busy} variant="outline" className="mt-3 w-full h-12 font-display font-bold border-white/15">
-              Join room
+              {t("play.join_cta")}
             </Button>
           </div>
         </div>
