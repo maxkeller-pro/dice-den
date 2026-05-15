@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Die } from "./Die";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n";
 import { ChevronDown, ChevronUp, Minus, Plus, Skull, Target } from "lucide-react";
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export function BidControls({ totalDice, lastQty, lastFace, isPalifico, canChallenge, onBid, onDudo, onCalza, busy }: Props) {
+  const { t } = useT();
   const [qty, setQty] = useState(1);
   const [face, setFace] = useState(2);
 
@@ -35,7 +37,7 @@ export function BidControls({ totalDice, lastQty, lastFace, isPalifico, canChall
     <div className="glass rounded-2xl p-4 space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <div className="mb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">Quantity</div>
+          <div className="mb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">{t("bid.qty")}</div>
           <div className="flex items-center justify-between rounded-xl bg-black/30 p-2">
             <Button size="icon" variant="ghost" className="h-9 w-9" disabled={busy} onClick={() => setQty((q) => Math.max(1, q - 1))}>
               <Minus className="h-4 w-4" />
@@ -47,7 +49,7 @@ export function BidControls({ totalDice, lastQty, lastFace, isPalifico, canChall
           </div>
         </div>
         <div>
-          <div className="mb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">Face</div>
+          <div className="mb-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">{t("bid.face")}</div>
           <div className="flex items-center justify-between rounded-xl bg-black/30 p-2">
             <Button size="icon" variant="ghost" className="h-9 w-9" disabled={busy || isPalifico}
               onClick={() => setFace((f) => Math.max(1, f - 1))}>
@@ -80,7 +82,7 @@ export function BidControls({ totalDice, lastQty, lastFace, isPalifico, canChall
         onClick={() => onBid(qty, face)}
         className="w-full h-14 text-base font-display font-bold bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] hover:brightness-110 text-white shadow-glow-violet"
       >
-        Raise: {qty} × <Die value={face} size="sm" className="!h-6 !w-6 inline-flex mx-1.5 align-middle" />
+        {t("bid.raise")} {qty} × <Die value={face} size="sm" className="!h-6 !w-6 inline-flex mx-1.5 align-middle" />
       </Button>
 
       {canChallenge && (
@@ -91,14 +93,14 @@ export function BidControls({ totalDice, lastQty, lastFace, isPalifico, canChall
             variant="destructive"
             className="h-12 font-display font-bold gap-2"
           >
-            <Skull className="h-4 w-4" /> DUDO
+            <Skull className="h-4 w-4" /> {t("bid.dudo")}
           </Button>
           <Button
             disabled={busy}
             onClick={onCalza}
             className="h-12 font-display font-bold gap-2 bg-[var(--cyan)]/90 text-black hover:bg-[var(--cyan)] shadow-glow-cyan"
           >
-            <Target className="h-4 w-4" /> CALZA
+            <Target className="h-4 w-4" /> {t("bid.calza")}
           </Button>
         </div>
       )}
