@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Die } from "@/components/game/Die";
 import { useAuth } from "@/hooks/useAuth";
+import { useT, LangSwitcher } from "@/lib/i18n";
 import { Dices, Sparkles, Users, Zap, Trophy, User } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { isGuest, stats, username } = useAuth();
+  const { t } = useT();
   return (
     <main className="relative min-h-dvh overflow-hidden">
       <div className="grid-bg pointer-events-none absolute inset-0 opacity-30" />
@@ -26,45 +28,45 @@ function Landing() {
           <span>LIAR<span className="text-[var(--cyan)]">.</span>DICE</span>
         </div>
         <nav className="flex items-center gap-1">
+          <LangSwitcher className="mr-1" />
           <Link to="/leaderboard">
-            <Button size="sm" variant="ghost" className="font-display gap-1.5"><Trophy className="h-4 w-4" /><span className="hidden sm:inline">Ranking</span></Button>
+            <Button size="sm" variant="ghost" className="font-display gap-1.5"><Trophy className="h-4 w-4" /><span className="hidden sm:inline">{t("common.ranking")}</span></Button>
           </Link>
           <Link to="/auth">
             <Button size="sm" variant="ghost" className="font-display gap-1.5">
               <User className="h-4 w-4" />
-              {isGuest ? <span className="hidden sm:inline">Sign in</span> : <span className="hidden sm:inline">{username || "Account"}{stats ? ` · ${stats.elo}` : ""}</span>}
+              {isGuest ? <span className="hidden sm:inline">{t("common.signin")}</span> : <span className="hidden sm:inline">{username || t("common.account")}{stats ? ` · ${stats.elo}` : ""}</span>}
             </Button>
           </Link>
           <Link to="/play">
-            <Button size="sm" variant="ghost" className="font-display">Play</Button>
+            <Button size="sm" variant="ghost" className="font-display">{t("common.play")}</Button>
           </Link>
         </nav>
       </header>
 
       <section className="relative z-10 mx-auto max-w-3xl px-5 pt-10 sm:pt-20 text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full glass px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-          <Sparkles className="h-3 w-3 text-[var(--cyan)]" /> Real-time multiplayer
+          <Sparkles className="h-3 w-3 text-[var(--cyan)]" /> {t("landing.badge")}
         </span>
         <h1 className="mt-6 font-display text-5xl sm:text-7xl font-bold leading-[0.95]">
-          Bluff. Bid.{" "}
+          {t("landing.title.bluff")} {t("landing.title.bid")}{" "}
           <span className="bg-gradient-to-br from-[var(--violet)] to-[var(--cyan)] bg-clip-text text-transparent">
-            Survive.
+            {t("landing.title.survive")}
           </span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-balance text-base sm:text-lg text-muted-foreground">
-          A modern take on the classic bluffing dice game. Spin up a private room,
-          share the code, and out-lie your friends — straight from your browser.
+          {t("landing.subtitle")}
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link to="/play" className="w-full sm:w-auto">
             <Button size="lg" className="w-full sm:w-auto h-14 px-8 font-display font-bold text-base bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] text-white shadow-glow-violet hover:brightness-110">
-              Start a game
+              {t("landing.cta.start")}
             </Button>
           </Link>
           <Link to="/play" className="w-full sm:w-auto">
             <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 font-display font-bold text-base border-white/15 hover:bg-white/5">
-              Join with code
+              {t("landing.cta.join")}
             </Button>
           </Link>
         </div>
@@ -77,9 +79,9 @@ function Landing() {
       </section>
 
       <section className="relative z-10 mx-auto mt-20 max-w-5xl px-5 pb-20 grid gap-4 sm:grid-cols-3">
-        <Feature icon={<Users className="h-5 w-5" />} title="2–6 players" desc="Private rooms with shareable codes. Play with friends across any device." />
-        <Feature icon={<Zap className="h-5 w-5" />} title="Server-authoritative" desc="All dice rolls and bid validation happen server-side. No cheating possible." />
-        <Feature icon={<Dices className="h-5 w-5" />} title="Full Perudo rules" desc="Wildcards, palifico rounds, Dudo and Calza — exactly how it should play." />
+        <Feature icon={<Users className="h-5 w-5" />} title={t("landing.feature.players.title")} desc={t("landing.feature.players.desc")} />
+        <Feature icon={<Zap className="h-5 w-5" />} title={t("landing.feature.server.title")} desc={t("landing.feature.server.desc")} />
+        <Feature icon={<Dices className="h-5 w-5" />} title={t("landing.feature.rules.title")} desc={t("landing.feature.rules.desc")} />
       </section>
     </main>
   );
