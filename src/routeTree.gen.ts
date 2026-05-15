@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YamsRouteImport } from './routes/yams'
 import { Route as PlayRouteImport } from './routes/play'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GamesRouteImport } from './routes/games'
@@ -16,6 +17,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoomCodeRouteImport } from './routes/room.$code'
 
+const YamsRoute = YamsRouteImport.update({
+  id: '/yams',
+  path: '/yams',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayRoute = PlayRouteImport.update({
   id: '/play',
   path: '/play',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/games': typeof GamesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/play': typeof PlayRoute
+  '/yams': typeof YamsRoute
   '/room/$code': typeof RoomCodeRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/games': typeof GamesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/play': typeof PlayRoute
+  '/yams': typeof YamsRoute
   '/room/$code': typeof RoomCodeRoute
 }
 export interface FileRoutesById {
@@ -70,13 +78,28 @@ export interface FileRoutesById {
   '/games': typeof GamesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/play': typeof PlayRoute
+  '/yams': typeof YamsRoute
   '/room/$code': typeof RoomCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/games' | '/leaderboard' | '/play' | '/room/$code'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/games'
+    | '/leaderboard'
+    | '/play'
+    | '/yams'
+    | '/room/$code'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/games' | '/leaderboard' | '/play' | '/room/$code'
+  to:
+    | '/'
+    | '/auth'
+    | '/games'
+    | '/leaderboard'
+    | '/play'
+    | '/yams'
+    | '/room/$code'
   id:
     | '__root__'
     | '/'
@@ -84,6 +107,7 @@ export interface FileRouteTypes {
     | '/games'
     | '/leaderboard'
     | '/play'
+    | '/yams'
     | '/room/$code'
   fileRoutesById: FileRoutesById
 }
@@ -93,11 +117,19 @@ export interface RootRouteChildren {
   GamesRoute: typeof GamesRoute
   LeaderboardRoute: typeof LeaderboardRoute
   PlayRoute: typeof PlayRoute
+  YamsRoute: typeof YamsRoute
   RoomCodeRoute: typeof RoomCodeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yams': {
+      id: '/yams'
+      path: '/yams'
+      fullPath: '/yams'
+      preLoaderRoute: typeof YamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/play': {
       id: '/play'
       path: '/play'
@@ -149,8 +181,19 @@ const rootRouteChildren: RootRouteChildren = {
   GamesRoute: GamesRoute,
   LeaderboardRoute: LeaderboardRoute,
   PlayRoute: PlayRoute,
+  YamsRoute: YamsRoute,
   RoomCodeRoute: RoomCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
