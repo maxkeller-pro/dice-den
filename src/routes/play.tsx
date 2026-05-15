@@ -15,7 +15,7 @@ export const Route = createFileRoute("/play")({
 });
 
 function Play() {
-  const { userId, username, setUsernameState, loading } = useAuth();
+  const { userId, username, setUsernameState, loading, isGuest, stats } = useAuth();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -75,6 +75,20 @@ function Play() {
         <div className="mt-6 flex items-center gap-2 font-display text-xl font-bold">
           <Dices className="h-6 w-6 text-[var(--violet)]" />
           Enter the table
+        </div>
+
+        <div className="mt-3 glass rounded-xl px-4 py-2.5 flex items-center justify-between text-xs">
+          {isGuest ? (
+            <>
+              <span className="text-muted-foreground">Playing as <span className="text-foreground font-display">guest</span></span>
+              <Link to="/auth" className="text-[var(--cyan)] font-display hover:underline">Save my stats →</Link>
+            </>
+          ) : (
+            <>
+              <span className="text-muted-foreground"><span className="text-foreground font-display">{username}</span> · Elo <span className="text-[var(--cyan)] font-mono">{stats?.elo ?? "—"}</span></span>
+              <Link to="/auth" className="text-muted-foreground hover:text-foreground">Account</Link>
+            </>
+          )}
         </div>
 
         <div className="mt-6 glass rounded-2xl p-5 space-y-3">

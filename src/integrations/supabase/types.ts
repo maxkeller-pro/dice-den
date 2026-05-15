@@ -173,18 +173,33 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          elo: number
+          games_played: number
+          is_guest: boolean
+          losses: number
           user_id: string
           username: string
+          wins: number
         }
         Insert: {
           created_at?: string
+          elo?: number
+          games_played?: number
+          is_guest?: boolean
+          losses?: number
           user_id: string
           username: string
+          wins?: number
         }
         Update: {
           created_at?: string
+          elo?: number
+          games_played?: number
+          is_guest?: boolean
+          losses?: number
           user_id?: string
           username?: string
+          wins?: number
         }
         Relationships: []
       }
@@ -287,6 +302,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _apply_elo: {
+        Args: { p_game_id: string; p_winner: string }
+        Returns: undefined
+      }
       _next_player: {
         Args: { p_current: string; p_game_id: string }
         Returns: string
