@@ -318,6 +318,127 @@ export type Database = {
         }
         Relationships: []
       }
+      yams_events: {
+        Row: {
+          created_at: string
+          data: Json
+          game_id: string
+          id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          game_id: string
+          id?: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          game_id?: string
+          id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "yams_events_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "yams_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      yams_games: {
+        Row: {
+          code: string
+          created_at: string
+          current_dice: number[]
+          current_player_id: string | null
+          ended_at: string | null
+          held: boolean[]
+          host_id: string
+          id: string
+          max_players: number
+          rolls_used: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["game_status"]
+          winner_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_dice?: number[]
+          current_player_id?: string | null
+          ended_at?: string | null
+          held?: boolean[]
+          host_id: string
+          id?: string
+          max_players?: number
+          rolls_used?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["game_status"]
+          winner_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_dice?: number[]
+          current_player_id?: string | null
+          ended_at?: string | null
+          held?: boolean[]
+          host_id?: string
+          id?: string
+          max_players?: number
+          rolls_used?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["game_status"]
+          winner_id?: string | null
+        }
+        Relationships: []
+      }
+      yams_players: {
+        Row: {
+          game_id: string
+          id: string
+          is_connected: boolean
+          joined_at: string
+          scorecard: Json
+          seat: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          game_id: string
+          id?: string
+          is_connected?: boolean
+          joined_at?: string
+          scorecard?: Json
+          seat: number
+          total?: number
+          user_id: string
+        }
+        Update: {
+          game_id?: string
+          id?: string
+          is_connected?: boolean
+          joined_at?: string
+          scorecard?: Json
+          seat?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "yams_players_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "yams_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -337,6 +458,14 @@ export type Database = {
       }
       _start_round: {
         Args: { p_game_id: string; p_starter: string }
+        Returns: string
+      }
+      _yams_calc_score: {
+        Args: { p_cat: string; p_dice: number[] }
+        Returns: number
+      }
+      _yams_next_player: {
+        Args: { p_current: string; p_game_id: string }
         Returns: string
       }
       gen_game_code: { Args: never; Returns: string }
@@ -364,6 +493,27 @@ export type Database = {
       }
       rpc_set_username: { Args: { p_username: string }; Returns: undefined }
       rpc_start_game: { Args: { p_game_id: string }; Returns: undefined }
+      yams_create_game: {
+        Args: never
+        Returns: {
+          code: string
+          game_id: string
+        }[]
+      }
+      yams_join_game: { Args: { p_code: string }; Returns: string }
+      yams_roll: {
+        Args: { p_game_id: string; p_held: boolean[] }
+        Returns: undefined
+      }
+      yams_score: {
+        Args: { p_category: string; p_game_id: string }
+        Returns: undefined
+      }
+      yams_set_held: {
+        Args: { p_game_id: string; p_held: boolean[] }
+        Returns: undefined
+      }
+      yams_start_game: { Args: { p_game_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
