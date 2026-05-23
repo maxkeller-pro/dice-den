@@ -16,7 +16,7 @@ export const Route = createFileRoute("/room/$code")({
   component: Room,
   head: ({ params }) => ({
     meta: [
-      { title: `Room ${params.code} — Liar's Dice` },
+      { title: `Salle ${params.code} — Perudo` },
       { name: "description", content: "Live multiplayer dice room." },
     ],
   }),
