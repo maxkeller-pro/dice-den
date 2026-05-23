@@ -33,7 +33,7 @@ const DICT = {
     "landing.feature.rules.desc": "Jokers, manches palifico, Dudo et Calza — exactement comme il se doit.",
 
     // Auth
-    "auth.meta.title": "Compte — Liar's Dice",
+    "auth.meta.title": "Compte — Perudo",
     "auth.save_progress": "Sauvegarder ta progression",
     "auth.your_account": "Ton compte",
     "auth.signed_in_as": "Connecté en tant que",
@@ -62,7 +62,7 @@ const DICT = {
     "auth.toast.fail": "Échec de l'authentification",
 
     // Play / lobby
-    "play.meta.title": "Jouer — Liar's Dice",
+    "play.meta.title": "Jouer — Perudo",
     "play.title": "Entrer à la table",
     "play.guest_label": "Tu joues en tant que",
     "play.guest_value": "invité",
@@ -173,7 +173,7 @@ const DICT = {
     "landing.feature.rules.title": "Full Perudo rules",
     "landing.feature.rules.desc": "Wildcards, palifico rounds, Dudo and Calza — exactly how it should play.",
 
-    "auth.meta.title": "Account — Liar's Dice",
+    "auth.meta.title": "Account — Perudo",
     "auth.save_progress": "Save your progress",
     "auth.your_account": "Your account",
     "auth.signed_in_as": "Signed in as",
@@ -201,7 +201,7 @@ const DICT = {
     "auth.toast.signed_out": "Signed out",
     "auth.toast.fail": "Auth failed",
 
-    "play.meta.title": "Play — Liar's Dice",
+    "play.meta.title": "Play — Perudo",
     "play.title": "Enter the table",
     "play.guest_label": "Playing as",
     "play.guest_value": "guest",
