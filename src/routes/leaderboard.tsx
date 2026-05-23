@@ -9,7 +9,7 @@ export const Route = createFileRoute("/leaderboard")({
   component: Leaderboard,
   head: () => ({
     meta: [
-      { title: "Leaderboard — Liar's Dice" },
+      { title: "Classement — Perudo" },
       { name: "description", content: "Top ranked players by Elo rating." },
     ],
   }),
