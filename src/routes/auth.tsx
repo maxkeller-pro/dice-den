@@ -12,7 +12,7 @@ export const Route = createFileRoute("/auth")({
   component: Auth,
   head: () => ({
     meta: [
-      { title: "Account — Liar's Dice" },
+      { title: "Compte — Perudo" },
       { name: "description", content: "Create an account to save your stats and climb the leaderboard." },
     ],
   }),
