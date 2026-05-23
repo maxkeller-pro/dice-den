@@ -80,9 +80,10 @@ export function BidControls({ totalDice, lastQty, lastFace, isPalifico, canChall
         size="lg"
         disabled={busy}
         onClick={() => onBid(qty, face)}
-        className="w-full h-14 text-base font-display font-bold bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] hover:brightness-110 text-white shadow-glow-violet"
+        className="w-full h-14 text-sm sm:text-base font-display font-bold bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] hover:brightness-110 text-white shadow-glow-violet inline-flex items-center justify-center flex-wrap gap-x-1"
       >
-        {t("bid.raise")} {qty} × <Die value={face} size="sm" className="!h-6 !w-6 inline-flex mx-1.5 align-middle" />
+        <span>{t("bid.raise")} {qty} ×</span>
+        <Die value={face} size="sm" className="!h-6 !w-6 inline-flex align-middle" />
       </Button>
 
       {canChallenge && (

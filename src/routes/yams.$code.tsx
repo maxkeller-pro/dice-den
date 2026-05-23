@@ -437,8 +437,8 @@ function Scorecard({
   }
 
   return (
-    <div className="glass rounded-2xl p-3 sm:p-4 overflow-x-auto">
-      <table className="w-full text-left">
+    <div className="glass rounded-2xl p-2 sm:p-4 overflow-x-auto -mx-2 sm:mx-0">
+      <table className="w-full text-left text-xs sm:text-sm min-w-[320px]">
         <thead>
           <tr>
             <th className="py-2 px-2 text-[10px] uppercase tracking-widest text-muted-foreground">{lang === "fr" ? "Catégorie" : "Category"}</th>
