@@ -169,23 +169,23 @@ function Room() {
 
       {/* Top bar */}
       <header className="relative z-10 px-3 sm:px-5 pt-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
           <Link to="/play" className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
             <ArrowLeft className="h-3.5 w-3.5" /> {t("common.leave")}
           </Link>
           <button onClick={copyCode} className="font-mono text-xs tracking-[0.3em] text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5">
             <Dices className="h-3 w-3" /> {code}
           </button>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground inline-flex items-center gap-1.5 whitespace-nowrap">
             {t("room.round")} <span className="text-foreground font-mono">{round?.round_number ?? "—"}</span>
-            {round?.is_palifico && <span className="ml-2 rounded-full bg-[var(--violet)]/20 text-[var(--violet)] px-2 py-0.5 text-[10px] font-bold tracking-widest">PALIFICO</span>}
+            {round?.is_palifico && <span className="rounded-full bg-[var(--violet)]/20 text-[var(--violet)] px-2 py-0.5 text-[10px] font-bold tracking-widest">PALIFICO</span>}
           </div>
         </div>
       </header>
 
       {/* Players strip */}
       <section className="relative z-10 mt-4 px-3 sm:px-5">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {players.map((p) => (
             <PlayerCard
               key={p.id}
