@@ -135,6 +135,7 @@ export type Database = {
           host_id: string
           id: string
           max_players: number
+          rule_set: string
           started_at: string | null
           starting_dice: number
           status: Database["public"]["Enums"]["game_status"]
@@ -149,6 +150,7 @@ export type Database = {
           host_id: string
           id?: string
           max_players?: number
+          rule_set?: string
           started_at?: string | null
           starting_dice?: number
           status?: Database["public"]["Enums"]["game_status"]
@@ -163,6 +165,7 @@ export type Database = {
           host_id?: string
           id?: string
           max_players?: number
+          rule_set?: string
           started_at?: string | null
           starting_dice?: number
           status?: Database["public"]["Enums"]["game_status"]
@@ -479,7 +482,7 @@ export type Database = {
       rpc_call_calza: { Args: { p_game_id: string }; Returns: undefined }
       rpc_call_dudo: { Args: { p_game_id: string }; Returns: undefined }
       rpc_create_game: {
-        Args: never
+        Args: { p_rule_set?: string }
         Returns: {
           code: string
           game_id: string
