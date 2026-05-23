@@ -1,7 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export async function createGame() {
-  const { data, error } = await supabase.rpc("rpc_create_game");
+export type RuleSet = "traditional" | "new";
+
+export async function createGame(ruleSet: RuleSet = "traditional") {
+  const { data, error } = await supabase.rpc("rpc_create_game", { p_rule_set: ruleSet });
   if (error) throw error;
   const row = Array.isArray(data) ? data[0] : data;
   return row as { game_id: string; code: string };

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { setUsername } from "@/lib/auth";
 import { createGame, joinGame } from "@/lib/game-api";
+import type { RuleSet } from "@/lib/game-api";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Dices, ArrowLeft, Loader2 } from "lucide-react";
@@ -12,15 +13,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/play")({
   component: Play,
-  head: () => ({ meta: [{ title: "Play — Liar's Dice" }, { name: "description", content: "Create a private room or join with a code." }] }),
+  head: () => ({ meta: [{ title: "Perudo" }, { name: "description", content: "Crée une salle privée ou rejoins avec un code." }] }),
 });
 
 function Play() {
   const { userId, username, setUsernameState, loading, isGuest, stats } = useAuth();
-  const { t } = useT();
+  const { t, lang } = useT();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [ruleSet, setRuleSet] = useState<RuleSet>("traditional");
   const nav = useNavigate();
 
   const displayName = name || username;
@@ -38,7 +40,7 @@ function Play() {
     setBusy(true);
     try {
       await persistName();
-      const { code: c } = await createGame();
+      const { code: c } = await createGame(ruleSet);
       nav({ to: "/room/$code", params: { code: c } });
     } catch (e: any) {
       toast.error(e.message ?? t("play.error.create"));
@@ -109,6 +111,46 @@ function Play() {
           <div className="glass rounded-2xl p-5">
             <h3 className="font-display text-lg font-semibold">{t("play.create")}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{t("play.create_desc")}</p>
+
+            <div className="mt-4">
+              <label className="block text-[10px] uppercase tracking-widest text-muted-foreground">
+                {lang === "fr" ? "Règle" : "Rules"}
+              </label>
+              <div className="mt-1.5 grid grid-cols-2 gap-1.5 rounded-xl bg-black/30 p-1">
+                <button
+                  type="button"
+                  onClick={() => setRuleSet("traditional")}
+                  className={`rounded-lg px-2 py-2 text-xs font-display transition ${
+                    ruleSet === "traditional"
+                      ? "bg-[var(--violet)]/30 ring-1 ring-[var(--violet)] text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {lang === "fr" ? "Traditionnelle" : "Traditional"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRuleSet("new")}
+                  className={`rounded-lg px-2 py-2 text-xs font-display transition ${
+                    ruleSet === "new"
+                      ? "bg-[var(--cyan)]/30 ring-1 ring-[var(--cyan)] text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {lang === "fr" ? "Nouveau" : "New"}
+                </button>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground leading-snug">
+                {ruleSet === "traditional"
+                  ? lang === "fr"
+                    ? "Pour relancer, la face doit rester ≥ à la précédente."
+                    : "When raising, the face must stay ≥ to the previous."
+                  : lang === "fr"
+                    ? "Tu peux choisir une face plus basse si tu augmentes strictement la quantité."
+                    : "You can pick a lower face if you strictly raise the quantity."}
+              </p>
+            </div>
+
             <Button onClick={onCreate} disabled={busy} className="mt-4 w-full h-12 font-display font-bold bg-gradient-to-br from-[var(--violet)] to-[oklch(0.55_0.24_295)] text-white shadow-glow-violet">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("play.create_cta")}
             </Button>
