@@ -8,7 +8,7 @@ export const Route = createFileRoute("/games")({
   component: GamesHub,
   head: () => ({
     meta: [
-      { title: "Choisir un jeu — Liar's Dice" },
+      { title: "Choisir un jeu — Perudo" },
       { name: "description", content: "Sélectionne un jeu à jouer." },
     ],
   }),
@@ -26,8 +26,8 @@ type Game = {
 
 const GAMES: Game[] = [
   {
-    id: "liars-dice",
-    title: "Liar's Dice",
+    id: "perudo",
+    title: "Perudo",
     desc: {
       fr: "Le jeu de bluff aux dés. Mise, bluffe, démasque tes adversaires.",
       en: "The classic bluffing dice game. Bid, bluff, call out your rivals.",
@@ -73,7 +73,7 @@ function GamesHub() {
       <header className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-10">
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
           <Dices className="h-5 w-5 text-[var(--violet)]" />
-          <span>LIAR<span className="text-[var(--cyan)]">.</span>DICE</span>
+          <span>PERU<span className="text-[var(--cyan)]">.</span>DO</span>
         </Link>
         <nav className="flex items-center gap-1">
           <LangSwitcher className="mr-1" />
