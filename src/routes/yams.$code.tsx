@@ -214,8 +214,8 @@ function YamsRoom() {
 
         {/* PLAYING */}
         {game.status === "playing" && (
-          <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_minmax(0,420px)]">
-            {/* LEFT: Scorecard */}
+          <section className="mt-6 flex flex-col-reverse gap-6 lg:grid lg:grid-cols-[1fr_minmax(0,420px)]">
+            {/* LEFT (desktop) / BOTTOM (mobile): Scorecard */}
             <Scorecard
               players={players} profiles={profiles} game={game}
               localDice={game.current_dice}
@@ -224,7 +224,7 @@ function YamsRoom() {
               lang={lang}
             />
 
-            {/* RIGHT: Dice + actions */}
+            {/* RIGHT (desktop) / TOP (mobile): Dice + actions */}
             <div className="space-y-4">
               <div className="glass rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -437,8 +437,8 @@ function Scorecard({
   }
 
   return (
-    <div className="glass rounded-2xl p-3 sm:p-4 overflow-x-auto">
-      <table className="w-full text-left">
+    <div className="glass rounded-2xl p-2 sm:p-4 overflow-x-auto -mx-2 sm:mx-0">
+      <table className="w-full text-left text-xs sm:text-sm min-w-[320px]">
         <thead>
           <tr>
             <th className="py-2 px-2 text-[10px] uppercase tracking-widest text-muted-foreground">{lang === "fr" ? "Catégorie" : "Category"}</th>

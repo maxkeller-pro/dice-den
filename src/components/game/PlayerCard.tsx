@@ -36,9 +36,9 @@ export function PlayerCard({ player, isCurrent, isMe, isHost }: Props) {
           {player.dice_count}<span className="opacity-50">d</span>
         </span>
       </div>
-      <div className="mt-1.5 flex gap-1">
+      <div className="mt-1.5 flex flex-wrap gap-1">
         {Array.from({ length: player.dice_count }).map((_, i) => (
-          <Die key={i} hidden size="sm" className="!h-6 !w-6 !rounded-md" />
+          <Die key={i} hidden size="sm" className="!h-5 !w-5 sm:!h-6 sm:!w-6 !rounded-md" />
         ))}
       </div>
     </div>
