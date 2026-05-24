@@ -894,6 +894,7 @@ function HeroPreview(props: {
         vx: Math.cos(tRef.current * 1.2) * 30,
         vy: Math.sin(tRef.current * 1.2) * 30,
         phase: 0,
+        shootCd: 0, weaponX: 0, weaponY: 0,
       };
       drawHero(ctx, p, tRef.current);
       raf = requestAnimationFrame(loop);
