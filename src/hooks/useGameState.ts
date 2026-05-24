@@ -80,7 +80,13 @@ export function useGameState(code: string | undefined) {
         .subscribe();
     })();
 
-    return () => { cancelled = true; if (channel) supabase.removeChannel(channel); };
+    // Polling fallback in case realtime is silently disconnected.
+    const pollId = setInterval(async () => {
+      const { data: g } = await supabase.from("games").select("id").eq("code", code.toUpperCase()).maybeSingle();
+      if (g && !cancelled) loadGame(g.id);
+    }, 3000);
+
+    return () => { cancelled = true; clearInterval(pollId); if (channel) supabase.removeChannel(channel); };
   }, [code]);
 
   return { game, players, round, events, myDice, error };
