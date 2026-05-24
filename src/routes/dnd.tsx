@@ -740,3 +740,44 @@ function hexA(hex: string, a: number) {
   const b = parseInt(h.slice(4, 6), 16);
   return `rgba(${r},${g},${b},${a})`;
 }
+
+/* ---------- Hero preview (canvas) ---------- */
+
+function HeroPreview(props: {
+  race: Race; cls: ClassId; fill: string; outline: string;
+  aura: string; glyph: string; helmet: boolean;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const tRef = useRef(0);
+  const size = 160;
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const loop = (now: number) => {
+      tRef.current += (now - last) / 1000;
+      last = now;
+      const c = ref.current; if (!c) { raf = requestAnimationFrame(loop); return; }
+      const ctx = c.getContext("2d"); if (!ctx) return;
+      const dpr = window.devicePixelRatio || 1;
+      if (c.width !== size * dpr) { c.width = size * dpr; c.height = size * dpr; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, size, size);
+      const r = RACES[props.race].radius * 1.4;
+      const p: Player = {
+        id: "preview", name: "", race: props.race, cls: props.cls,
+        fill: props.fill, outline: props.outline, glyph: props.glyph,
+        aura: props.aura, helmet: props.helmet,
+        radius: r, speed: 0, hp: 1, maxHp: 1,
+        x: size / 2, y: size / 2,
+        vx: Math.cos(tRef.current * 1.2) * 30,
+        vy: Math.sin(tRef.current * 1.2) * 30,
+        phase: 0,
+      };
+      drawHero(ctx, p, tRef.current);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [props.race, props.cls, props.fill, props.outline, props.aura, props.glyph, props.helmet]);
+  return <canvas ref={ref} style={{ width: size, height: size }} />;
+}
