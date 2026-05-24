@@ -119,6 +119,9 @@ const DICT = {
     "room.waiting_for": "En attente de {name}…",
     "room.next_player": "joueur suivant",
 
+    "sound.mute": "Couper le son",
+    "sound.unmute": "Activer le son",
+
     // Bid controls
     "bid.qty": "Quantité",
     "bid.face": "Face",
@@ -255,6 +258,9 @@ const DICT = {
     "room.waiting_dots": "Waiting…",
     "room.waiting_for": "Waiting for {name}…",
     "room.next_player": "next player",
+
+    "sound.mute": "Mute sound",
+    "sound.unmute": "Unmute sound",
 
     "bid.qty": "Quantity",
     "bid.face": "Face",
