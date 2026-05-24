@@ -305,29 +305,18 @@ function DnDArena() {
           if (!cfg || p.hp <= 0) continue;
           p.shootCd -= dt;
           if (p.shootCd > 0) continue;
-          // find nearest living enemy within range
-          let best: Player | null = null;
-          let bestD2 = (CLASSES[p.cls].range + 40) ** 2;
-          for (const q of ps) {
-            if (q.id === p.id || q.hp <= 0) continue;
-            const dx = q.x - p.x, dy = q.y - p.y;
-            const d2 = dx * dx + dy * dy;
-            if (d2 < bestD2) { bestD2 = d2; best = q; }
-          }
-          if (best) {
-            // tire dans la direction de l'arme (radial depuis le joueur)
-            const dx = p.weaponX - p.x, dy = p.weaponY - p.y;
-            const d = Math.hypot(dx, dy) || 1;
-            projectilesRef.current.push({
-              ownerId: p.id,
-              x: p.weaponX, y: p.weaponY,
-              vx: (dx / d) * cfg.speed, vy: (dy / d) * cfg.speed,
-              damage: CLASSES[p.cls].damage,
-              color: cfg.color, kind: cfg.kind,
-              life: 2.2,
-            });
-            p.shootCd = cfg.cooldown;
-          }
+          // tir continu dans la direction de l'arme (peu importe les ennemis)
+          const dx = p.weaponX - p.x, dy = p.weaponY - p.y;
+          const d = Math.hypot(dx, dy) || 1;
+          projectilesRef.current.push({
+            ownerId: p.id,
+            x: p.weaponX, y: p.weaponY,
+            vx: (dx / d) * cfg.speed, vy: (dy / d) * cfg.speed,
+            damage: CLASSES[p.cls].damage,
+            color: cfg.color, kind: cfg.kind,
+            life: 2.2,
+          });
+          p.shootCd = cfg.cooldown;
         }
         // update projectiles
         const next: Projectile[] = [];
