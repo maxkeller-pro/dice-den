@@ -121,6 +121,22 @@ const CLASSES: Record<ClassId, ClassDef> = {
   },
 };
 
+/* ---------- Class auras & skins ---------- */
+
+const AURAS: Record<ClassId, string> = {
+  warrior: "#fb923c",
+  mage: "#a78bfa",
+  archer: "#34d399",
+  cleric: "#fde047",
+  barbarian: "#ef4444",
+  rogue: "#22d3ee",
+};
+
+const SKINS = [
+  "#fca5a5", "#fcd34d", "#86efac", "#7dd3fc",
+  "#c4b5fd", "#f9a8d4", "#fdba74", "#a3e635",
+];
+
 /* ---------- Types & helpers ---------- */
 
 type Player = {
@@ -131,12 +147,15 @@ type Player = {
   fill: string;
   outline: string;
   glyph: string;
+  aura: string;
+  helmet: boolean;
   radius: number;
   speed: number;
   hp: number;
   maxHp: number;
   x: number; y: number;
   vx: number; vy: number;
+  phase: number; // animation offset
 };
 
 const FUNNY_NAMES = [
@@ -149,7 +168,13 @@ function randomVelocity(speed: number) {
   return { vx: Math.cos(a) * speed, vy: Math.sin(a) * speed };
 }
 
-function makePlayer(name: string, race: Race, cls: ClassId, arena: number): Player {
+function makePlayer(
+  name: string,
+  race: Race,
+  cls: ClassId,
+  arena: number,
+  opts: { skin?: string; helmet?: boolean } = {},
+): Player {
   const r = RACES[race];
   const c = CLASSES[cls];
   const { vx, vy } = randomVelocity(r.speed);
@@ -157,12 +182,17 @@ function makePlayer(name: string, race: Race, cls: ClassId, arena: number): Play
     id: crypto.randomUUID(),
     name: name.trim() || FUNNY_NAMES[Math.floor(Math.random() * FUNNY_NAMES.length)],
     race, cls,
-    fill: r.fill, outline: r.outline, glyph: c.glyph,
+    fill: opts.skin ?? r.fill,
+    outline: r.outline,
+    glyph: c.glyph,
+    aura: AURAS[cls],
+    helmet: opts.helmet ?? false,
     radius: r.radius, speed: r.speed,
     hp: r.hp, maxHp: r.hp,
     x: r.radius + Math.random() * (arena - 2 * r.radius),
     y: r.radius + Math.random() * (arena - 2 * r.radius),
     vx, vy,
+    phase: Math.random() * Math.PI * 2,
   };
 }
 
@@ -178,10 +208,15 @@ function DnDArena() {
   const [name, setName] = useState("");
   const [race, setRace] = useState<Race>("human");
   const [cls, setCls] = useState<ClassId>("warrior");
+  const [skin, setSkin] = useState<string | null>(null);
+  const [helmet, setHelmet] = useState(false);
   const [running, setRunning] = useState(true);
 
   const raceDef = RACES[race];
   const clsDef = CLASSES[cls];
+  const previewFill = skin ?? raceDef.fill;
+  const auraColor = AURAS[cls];
+  const timeRef = useRef(0);
 
   // seed
   useEffect(() => {
@@ -203,6 +238,7 @@ function DnDArena() {
     const step = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      timeRef.current += dt;
       if (running) {
         const ps = playersRef.current;
         for (const p of ps) {
@@ -262,27 +298,9 @@ function DnDArena() {
     ctx.strokeStyle = "rgba(91,58,26,0.5)"; ctx.lineWidth = 1;
     ctx.strokeRect(12, 12, ARENA - 24, ARENA - 24);
 
+    const tNow = timeRef.current;
     for (const p of playersRef.current) {
-      // shadow
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.ellipse(p.x, p.y + p.radius * 0.85, p.radius * 0.9, p.radius * 0.35, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // body
-      ctx.beginPath();
-      ctx.fillStyle = p.fill;
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 4; ctx.strokeStyle = p.outline; ctx.stroke();
-      // gloss
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
-      ctx.arc(p.x - p.radius * 0.35, p.y - p.radius * 0.4, p.radius * 0.35, 0, Math.PI * 2);
-      ctx.fill();
-      // weapon glyph
-      ctx.font = `${Math.round(p.radius * 0.9)}px serif`;
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(p.glyph, p.x, p.y + 1);
+      drawHero(ctx, p, tNow);
       // HP bar
       const bw = Math.max(46, p.radius * 2.2), bh = 6;
       const bx = p.x - bw / 2, by = p.y - p.radius - 16;
@@ -301,7 +319,10 @@ function DnDArena() {
   }
 
   function addPlayer() {
-    playersRef.current = [...playersRef.current, makePlayer(name, race, cls, ARENA)];
+    playersRef.current = [
+      ...playersRef.current,
+      makePlayer(name, race, cls, ARENA, { skin: skin ?? undefined, helmet }),
+    ];
     setName("");
     setTick((t) => t + 1);
   }
@@ -437,19 +458,75 @@ function DnDArena() {
             <h3 className="font-display text-lg font-bold">{lang === "fr" ? "Aperçu" : "Preview"}</h3>
 
             <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-[#f5e9c8] to-[#d6bf8a] py-6">
-              <div className="relative" style={{ width: raceDef.radius * 2.4, height: raceDef.radius * 2.4 }}>
-                <div
-                  className="absolute inset-0 m-auto rounded-full flex items-center justify-center"
-                  style={{
-                    background: raceDef.fill,
-                    border: `5px solid ${raceDef.outline}`,
-                    width: raceDef.radius * 2,
-                    height: raceDef.radius * 2,
-                    fontSize: raceDef.radius * 0.9,
-                  }}
+              <HeroPreview
+                race={race}
+                cls={cls}
+                fill={previewFill}
+                outline={raceDef.outline}
+                aura={auraColor}
+                glyph={clsDef.glyph}
+                helmet={helmet}
+              />
+            </div>
+
+            {/* Skin swatches */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                {lang === "fr" ? "Skin" : "Skin"}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setSkin(null)}
+                  title={lang === "fr" ? "Par défaut" : "Default"}
+                  className={`h-7 w-7 rounded-full border-2 grid place-items-center text-[10px] ${
+                    skin === null ? "border-white" : "border-white/20"
+                  }`}
+                  style={{ background: raceDef.fill }}
                 >
-                  {clsDef.glyph}
-                </div>
+                  ✓
+                </button>
+                {SKINS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setSkin(c)}
+                    className={`h-7 w-7 rounded-full border-2 ${
+                      skin === c ? "border-white" : "border-white/20"
+                    }`}
+                    style={{ background: c }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Accessories */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                {lang === "fr" ? "Accessoires" : "Accessories"}
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <button
+                  onClick={() => setHelmet((h) => !h)}
+                  className={`rounded-full px-3 py-1.5 border transition ${
+                    helmet ? "bg-white/15 border-white/40" : "border-white/15 hover:bg-white/5"
+                  }`}
+                >
+                  🪖 {lang === "fr" ? "Casque" : "Helmet"}
+                </button>
+                {race === "dwarf" && (
+                  <span className="rounded-full px-3 py-1.5 border border-white/15 bg-white/5">
+                    🧔 {lang === "fr" ? "Barbe (auto)" : "Beard (auto)"}
+                  </span>
+                )}
+                {race === "tiefling" && (
+                  <span className="rounded-full px-3 py-1.5 border border-white/15 bg-white/5">
+                    😈 {lang === "fr" ? "Cornes (auto)" : "Horns (auto)"}
+                  </span>
+                )}
+                {cls === "mage" && (
+                  <span className="rounded-full px-3 py-1.5 border border-white/15 bg-white/5">
+                    🧙 {lang === "fr" ? "Cape (auto)" : "Cape (auto)"}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -527,4 +604,180 @@ function Pill({ label, value }: { label: string; value: number }) {
       <span className="font-display font-bold">{value}</span>
     </div>
   );
+}
+
+/* ---------- Canvas rendering ---------- */
+
+function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
+  const r = p.radius;
+  const speed = Math.hypot(p.vx, p.vy);
+  const moving = speed > 1;
+  const bob = moving ? Math.sin(t * 8 + p.phase) * (r * 0.06) : 0;
+  const x = p.x;
+  const y = p.y + bob;
+  const dirAng = moving ? Math.atan2(p.vy, p.vx) : 0;
+
+  // aura
+  const auraR = r * 1.7 + Math.sin(t * 2 + p.phase) * (r * 0.06);
+  const grad = ctx.createRadialGradient(x, y, r * 0.9, x, y, auraR);
+  grad.addColorStop(0, hexA(p.aura, 0.45));
+  grad.addColorStop(1, hexA(p.aura, 0));
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(x, y, auraR, 0, Math.PI * 2); ctx.fill();
+
+  // cape (mage)
+  if (p.cls === "mage") {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(dirAng + Math.PI / 2);
+    ctx.fillStyle = "#7c3aed";
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.9, 0);
+    ctx.quadraticCurveTo(0, r * 1.5, r * 0.9, 0);
+    ctx.quadraticCurveTo(0, r * 0.4, -r * 0.9, 0);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+  }
+
+  // shadow
+  ctx.beginPath();
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.ellipse(x, p.y + r * 0.85, r * 0.9, r * 0.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // body
+  ctx.beginPath();
+  ctx.fillStyle = p.fill;
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.lineWidth = 4; ctx.strokeStyle = p.outline; ctx.stroke();
+
+  // gloss
+  ctx.beginPath();
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.arc(x - r * 0.35, y - r * 0.4, r * 0.32, 0, Math.PI * 2);
+  ctx.fill();
+
+  // eyes (look toward motion)
+  const eyeOffX = moving ? Math.cos(dirAng) * r * 0.12 : 0;
+  const eyeOffY = moving ? Math.sin(dirAng) * r * 0.12 : 0;
+  const eyeY = y - r * 0.05;
+  const eyeDx = r * 0.32;
+  const eyeR = Math.max(1.8, r * 0.13);
+  // sclera
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(x - eyeDx, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + eyeDx, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+  // pupils
+  ctx.fillStyle = "#1a1a1a";
+  ctx.beginPath(); ctx.arc(x - eyeDx + eyeOffX, eyeY + eyeOffY, eyeR * 0.55, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + eyeDx + eyeOffX, eyeY + eyeOffY, eyeR * 0.55, 0, Math.PI * 2); ctx.fill();
+
+  // beard (dwarf)
+  if (p.race === "dwarf") {
+    ctx.fillStyle = "#fef3c7";
+    ctx.strokeStyle = "rgba(0,0,0,0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.55, y + r * 0.1);
+    ctx.quadraticCurveTo(x, y + r * 1.05, x + r * 0.55, y + r * 0.1);
+    ctx.quadraticCurveTo(x, y + r * 0.45, x - r * 0.55, y + r * 0.1);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // horns (tiefling)
+  if (p.race === "tiefling") {
+    ctx.fillStyle = "#1f2937";
+    for (const sgn of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(x + sgn * r * 0.45, y - r * 0.8);
+      ctx.quadraticCurveTo(x + sgn * r * 0.95, y - r * 1.35, x + sgn * r * 0.55, y - r * 1.5);
+      ctx.quadraticCurveTo(x + sgn * r * 0.3, y - r * 1.1, x + sgn * r * 0.25, y - r * 0.85);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  // helmet (toggle accessory)
+  if (p.helmet) {
+    ctx.fillStyle = "#94a3b8";
+    ctx.strokeStyle = "rgba(0,0,0,0.4)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.02, Math.PI, 2 * Math.PI);
+    ctx.lineTo(x + r * 1.02, y + r * 0.05);
+    ctx.lineTo(x - r * 1.02, y + r * 0.05);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // plume
+    ctx.fillStyle = "#dc2626";
+    ctx.beginPath();
+    ctx.ellipse(x, y - r * 0.95, r * 0.18, r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // weapon orbiting around
+  const orbitR = r + 10;
+  const orbitAng = moving ? dirAng : t * 1.5 + p.phase;
+  const wx = x + Math.cos(orbitAng) * orbitR;
+  const wy = y + Math.sin(orbitAng) * orbitR;
+  ctx.font = `${Math.round(r * 0.8)}px serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.save();
+  ctx.translate(wx, wy);
+  ctx.rotate(orbitAng + Math.PI / 4);
+  ctx.fillText(p.glyph, 0, 0);
+  ctx.restore();
+}
+
+function hexA(hex: string, a: number) {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ---------- Hero preview (canvas) ---------- */
+
+function HeroPreview(props: {
+  race: Race; cls: ClassId; fill: string; outline: string;
+  aura: string; glyph: string; helmet: boolean;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const tRef = useRef(0);
+  const size = 160;
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const loop = (now: number) => {
+      tRef.current += (now - last) / 1000;
+      last = now;
+      const c = ref.current; if (!c) { raf = requestAnimationFrame(loop); return; }
+      const ctx = c.getContext("2d"); if (!ctx) return;
+      const dpr = window.devicePixelRatio || 1;
+      if (c.width !== size * dpr) { c.width = size * dpr; c.height = size * dpr; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, size, size);
+      const r = RACES[props.race].radius * 1.4;
+      const p: Player = {
+        id: "preview", name: "", race: props.race, cls: props.cls,
+        fill: props.fill, outline: props.outline, glyph: props.glyph,
+        aura: props.aura, helmet: props.helmet,
+        radius: r, speed: 0, hp: 1, maxHp: 1,
+        x: size / 2, y: size / 2,
+        vx: Math.cos(tRef.current * 1.2) * 30,
+        vy: Math.sin(tRef.current * 1.2) * 30,
+        phase: 0,
+      };
+      drawHero(ctx, p, tRef.current);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [props.race, props.cls, props.fill, props.outline, props.aura, props.glyph, props.helmet]);
+  return <canvas ref={ref} style={{ width: size, height: size }} />;
 }
