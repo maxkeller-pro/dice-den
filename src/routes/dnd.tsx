@@ -208,10 +208,15 @@ function DnDArena() {
   const [name, setName] = useState("");
   const [race, setRace] = useState<Race>("human");
   const [cls, setCls] = useState<ClassId>("warrior");
+  const [skin, setSkin] = useState<string | null>(null);
+  const [helmet, setHelmet] = useState(false);
   const [running, setRunning] = useState(true);
 
   const raceDef = RACES[race];
   const clsDef = CLASSES[cls];
+  const previewFill = skin ?? raceDef.fill;
+  const auraColor = AURAS[cls];
+  const timeRef = useRef(0);
 
   // seed
   useEffect(() => {
@@ -233,6 +238,7 @@ function DnDArena() {
     const step = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      timeRef.current += dt;
       if (running) {
         const ps = playersRef.current;
         for (const p of ps) {
