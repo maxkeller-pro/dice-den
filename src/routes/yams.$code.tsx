@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Dices, Crown, Copy, Check, Play } from "lucide-react";
 import { toast } from "sonner";
+import { playDiceRoll } from "@/lib/sound";
 
 export const Route = createFileRoute("/yams/$code")({
   component: YamsRoom,
@@ -126,7 +127,7 @@ function YamsRoom() {
   async function onRoll() {
     if (!game) return;
     setBusy(true);
-    try { await yamsRoll(game.id, localHeld); }
+    try { playDiceRoll(); await yamsRoll(game.id, localHeld); }
     catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   }
