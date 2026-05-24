@@ -19,7 +19,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function Auth() {
-  const { userId, username, isGuest, stats, loading, email } = useAuth();
+  const { userId, username, isGuest, stats, loading, email: accountEmail } = useAuth();
   const { t } = useT();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [email, setEmail] = useState("");
@@ -82,8 +82,8 @@ function Auth() {
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("auth.signed_in_as")}</p>
               <p className="font-display text-lg">{username || t("auth.player")}</p>
-              {email && (
-                <p className="mt-1 text-xs text-muted-foreground font-mono">{maskEmail(email)}</p>
+              {accountEmail && (
+                <p className="mt-1 text-xs text-muted-foreground font-mono">{maskEmail(accountEmail)}</p>
               )}
             </div>
             {stats && (
