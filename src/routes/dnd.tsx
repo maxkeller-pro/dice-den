@@ -274,13 +274,15 @@ function DnDArena() {
           if (p.x + p.radius > ARENA) { p.x = ARENA - p.radius; p.vx = -Math.abs(p.vx); }
           if (p.y - p.radius < 0) { p.y = p.radius; p.vy = Math.abs(p.vy); }
           if (p.y + p.radius > ARENA) { p.y = ARENA - p.radius; p.vy = -Math.abs(p.vy); }
-          // continuous weapon orbit position (melee = plus loin et plus rapide)
+          // continuous weapon orbit position (vitesse unifiée)
           const melee = !RANGED[p.cls];
           const orbitR = p.radius + (melee ? 28 : 12);
-          const orbitAng = timeRef.current * (melee ? 6 : 3) + p.phase;
+          const orbitAng = timeRef.current * 6 + p.phase;
           p.weaponX = p.x + Math.cos(orbitAng) * orbitR;
           p.weaponY = p.y + Math.sin(orbitAng) * orbitR;
         }
+        // remove dead players
+        playersRef.current = ps.filter((p) => p.hp > 0);
         // weapon-touch damage (any class with a melee glyph)
         for (const a of ps) {
           const wR = RANGED[a.cls] ? 10 : 18;
