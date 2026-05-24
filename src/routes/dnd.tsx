@@ -121,6 +121,22 @@ const CLASSES: Record<ClassId, ClassDef> = {
   },
 };
 
+/* ---------- Class auras & skins ---------- */
+
+const AURAS: Record<ClassId, string> = {
+  warrior: "#fb923c",
+  mage: "#a78bfa",
+  archer: "#34d399",
+  cleric: "#fde047",
+  barbarian: "#ef4444",
+  rogue: "#22d3ee",
+};
+
+const SKINS = [
+  "#fca5a5", "#fcd34d", "#86efac", "#7dd3fc",
+  "#c4b5fd", "#f9a8d4", "#fdba74", "#a3e635",
+];
+
 /* ---------- Types & helpers ---------- */
 
 type Player = {
@@ -131,12 +147,15 @@ type Player = {
   fill: string;
   outline: string;
   glyph: string;
+  aura: string;
+  helmet: boolean;
   radius: number;
   speed: number;
   hp: number;
   maxHp: number;
   x: number; y: number;
   vx: number; vy: number;
+  phase: number; // animation offset
 };
 
 const FUNNY_NAMES = [
@@ -149,7 +168,13 @@ function randomVelocity(speed: number) {
   return { vx: Math.cos(a) * speed, vy: Math.sin(a) * speed };
 }
 
-function makePlayer(name: string, race: Race, cls: ClassId, arena: number): Player {
+function makePlayer(
+  name: string,
+  race: Race,
+  cls: ClassId,
+  arena: number,
+  opts: { skin?: string; helmet?: boolean } = {},
+): Player {
   const r = RACES[race];
   const c = CLASSES[cls];
   const { vx, vy } = randomVelocity(r.speed);
@@ -157,12 +182,17 @@ function makePlayer(name: string, race: Race, cls: ClassId, arena: number): Play
     id: crypto.randomUUID(),
     name: name.trim() || FUNNY_NAMES[Math.floor(Math.random() * FUNNY_NAMES.length)],
     race, cls,
-    fill: r.fill, outline: r.outline, glyph: c.glyph,
+    fill: opts.skin ?? r.fill,
+    outline: r.outline,
+    glyph: c.glyph,
+    aura: AURAS[cls],
+    helmet: opts.helmet ?? false,
     radius: r.radius, speed: r.speed,
     hp: r.hp, maxHp: r.hp,
     x: r.radius + Math.random() * (arena - 2 * r.radius),
     y: r.radius + Math.random() * (arena - 2 * r.radius),
     vx, vy,
+    phase: Math.random() * Math.PI * 2,
   };
 }
 
