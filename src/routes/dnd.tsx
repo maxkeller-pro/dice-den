@@ -458,19 +458,75 @@ function DnDArena() {
             <h3 className="font-display text-lg font-bold">{lang === "fr" ? "Aperçu" : "Preview"}</h3>
 
             <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-[#f5e9c8] to-[#d6bf8a] py-6">
-              <div className="relative" style={{ width: raceDef.radius * 2.4, height: raceDef.radius * 2.4 }}>
-                <div
-                  className="absolute inset-0 m-auto rounded-full flex items-center justify-center"
-                  style={{
-                    background: raceDef.fill,
-                    border: `5px solid ${raceDef.outline}`,
-                    width: raceDef.radius * 2,
-                    height: raceDef.radius * 2,
-                    fontSize: raceDef.radius * 0.9,
-                  }}
+              <HeroPreview
+                race={race}
+                cls={cls}
+                fill={previewFill}
+                outline={raceDef.outline}
+                aura={auraColor}
+                glyph={clsDef.glyph}
+                helmet={helmet}
+              />
+            </div>
+
+            {/* Skin swatches */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                {lang === "fr" ? "Skin" : "Skin"}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setSkin(null)}
+                  title={lang === "fr" ? "Par défaut" : "Default"}
+                  className={`h-7 w-7 rounded-full border-2 grid place-items-center text-[10px] ${
+                    skin === null ? "border-white" : "border-white/20"
+                  }`}
+                  style={{ background: raceDef.fill }}
                 >
-                  {clsDef.glyph}
-                </div>
+                  ✓
+                </button>
+                {SKINS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setSkin(c)}
+                    className={`h-7 w-7 rounded-full border-2 ${
+                      skin === c ? "border-white" : "border-white/20"
+                    }`}
+                    style={{ background: c }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Accessories */}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+                {lang === "fr" ? "Accessoires" : "Accessories"}
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <button
+                  onClick={() => setHelmet((h) => !h)}
+                  className={`rounded-full px-3 py-1.5 border transition ${
+                    helmet ? "bg-white/15 border-white/40" : "border-white/15 hover:bg-white/5"
+                  }`}
+                >
+                  🪖 {lang === "fr" ? "Casque" : "Helmet"}
+                </button>
+                {race === "dwarf" && (
+                  <span className="rounded-full px-3 py-1.5 border border-white/15 bg-white/5">
+                    🧔 {lang === "fr" ? "Barbe (auto)" : "Beard (auto)"}
+                  </span>
+                )}
+                {race === "tiefling" && (
+                  <span className="rounded-full px-3 py-1.5 border border-white/15 bg-white/5">
+                    😈 {lang === "fr" ? "Cornes (auto)" : "Horns (auto)"}
+                  </span>
+                )}
+                {cls === "mage" && (
+                  <span className="rounded-full px-3 py-1.5 border border-white/15 bg-white/5">
+                    🧙 {lang === "fr" ? "Cape (auto)" : "Cape (auto)"}
+                  </span>
+                )}
               </div>
             </div>
 
