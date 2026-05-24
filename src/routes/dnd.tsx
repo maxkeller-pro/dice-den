@@ -844,12 +844,13 @@ function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
   }
 
   // weapon orbiting around
-  const orbitR = r + 12;
-  const orbitAng = t * 3 + p.phase;
+  const melee = !RANGED[p.cls];
+  const orbitR = r + (melee ? 28 : 12);
+  const orbitAng = t * (melee ? 6 : 3) + p.phase;
   // prefer precomputed position from sim, fall back for preview
   const wx = p.weaponX || (x + Math.cos(orbitAng) * orbitR);
   const wy = p.weaponY || (y + Math.sin(orbitAng) * orbitR);
-  ctx.font = `${Math.round(r * 0.8)}px serif`;
+  ctx.font = `${Math.round(r * (melee ? 1.4 : 0.8))}px serif`;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.save();
   ctx.translate(wx, wy);
