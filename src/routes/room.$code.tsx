@@ -10,6 +10,7 @@ import { useGameState } from "@/hooks/useGameState";
 import { joinGame, startGame, placeBid, callDudo, callCalza, nextRound } from "@/lib/game-api";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
+import { playDiceRoll } from "@/lib/sound";
 import { ArrowLeft, Copy, Crown, Dices, Loader2, Trophy, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/room/$code")({
@@ -29,6 +30,13 @@ function Room() {
   const { game, players, round, events, myDice, error } = useGameState(code);
   const [busy, setBusy] = useState(false);
   const nav = useNavigate();
+
+  // Play a dice-roll sound when a new round starts (server hands out fresh dice).
+  useEffect(() => {
+    if (!round?.round_number) return;
+    if (round.status === "bidding") playDiceRoll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round?.round_number]);
 
   // Auto-join the room if I'm not already in it
   useEffect(() => {
