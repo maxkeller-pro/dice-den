@@ -156,6 +156,23 @@ type Player = {
   x: number; y: number;
   vx: number; vy: number;
   phase: number; // animation offset
+  shootCd: number; // seconds until next shot
+  weaponX: number; weaponY: number; // last computed weapon position
+};
+
+type Projectile = {
+  ownerId: string;
+  x: number; y: number;
+  vx: number; vy: number;
+  damage: number;
+  color: string;
+  kind: "arrow" | "magic";
+  life: number; // seconds remaining
+};
+
+const RANGED: Partial<Record<ClassId, { cooldown: number; speed: number; kind: "arrow" | "magic"; color: string }>> = {
+  mage:   { cooldown: 1.4, speed: 260, kind: "magic", color: "#a78bfa" },
+  archer: { cooldown: 0.9, speed: 360, kind: "arrow", color: "#3a1e10" },
 };
 
 const FUNNY_NAMES = [
@@ -193,6 +210,8 @@ function makePlayer(
     y: r.radius + Math.random() * (arena - 2 * r.radius),
     vx, vy,
     phase: Math.random() * Math.PI * 2,
+    shootCd: RANGED[cls]?.cooldown ?? 0,
+    weaponX: 0, weaponY: 0,
   };
 }
 
