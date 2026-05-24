@@ -842,10 +842,11 @@ function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
   }
 
   // weapon orbiting around
-  const orbitR = r + 10;
-  const orbitAng = moving ? dirAng : t * 1.5 + p.phase;
-  const wx = x + Math.cos(orbitAng) * orbitR;
-  const wy = y + Math.sin(orbitAng) * orbitR;
+  const orbitR = r + 12;
+  const orbitAng = t * 3 + p.phase;
+  // prefer precomputed position from sim, fall back for preview
+  const wx = p.weaponX || (x + Math.cos(orbitAng) * orbitR);
+  const wy = p.weaponY || (y + Math.sin(orbitAng) * orbitR);
   ctx.font = `${Math.round(r * 0.8)}px serif`;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.save();
