@@ -164,3 +164,13 @@ function Stat({ label, value, accent }: { label: string; value: number; accent?:
     </div>
   );
 }
+
+function maskEmail(email: string): string {
+  const at = email.indexOf("@");
+  if (at < 0) return email;
+  const local = email.slice(0, at);
+  const domain = email.slice(at);
+  const visible = local.slice(0, 3);
+  const hidden = "•".repeat(Math.max(0, local.length - visible.length));
+  return `${visible}${hidden}${domain}`;
+}
