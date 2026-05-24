@@ -274,19 +274,20 @@ function DnDArena() {
           if (p.x + p.radius > ARENA) { p.x = ARENA - p.radius; p.vx = -Math.abs(p.vx); }
           if (p.y - p.radius < 0) { p.y = p.radius; p.vy = Math.abs(p.vy); }
           if (p.y + p.radius > ARENA) { p.y = ARENA - p.radius; p.vy = -Math.abs(p.vy); }
-          // continuous weapon orbit position
-          const orbitR = p.radius + 12;
-          const orbitAng = timeRef.current * 3 + p.phase;
+          // continuous weapon orbit position (melee = plus loin et plus rapide)
+          const melee = !RANGED[p.cls];
+          const orbitR = p.radius + (melee ? 28 : 12);
+          const orbitAng = timeRef.current * (melee ? 6 : 3) + p.phase;
           p.weaponX = p.x + Math.cos(orbitAng) * orbitR;
           p.weaponY = p.y + Math.sin(orbitAng) * orbitR;
         }
         // weapon-touch damage (any class with a melee glyph)
-        const WEAPON_R = 10;
         for (const a of ps) {
+          const wR = RANGED[a.cls] ? 10 : 18;
           for (const b of ps) {
             if (a.id === b.id || b.hp <= 0) continue;
             const dx = b.x - a.weaponX, dy = b.y - a.weaponY;
-            if (dx * dx + dy * dy <= (b.radius + WEAPON_R) ** 2) {
+            if (dx * dx + dy * dy <= (b.radius + wR) ** 2) {
               const key = `${a.id}:${b.id}`;
               if (!hm.has(key)) {
                 const dmg = RANGED[a.cls] ? Math.round(CLASSES[a.cls].damage * 0.4) : CLASSES[a.cls].damage;
