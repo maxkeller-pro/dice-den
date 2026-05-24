@@ -549,3 +549,138 @@ function Pill({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
+/* ---------- Canvas rendering ---------- */
+
+function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
+  const r = p.radius;
+  const speed = Math.hypot(p.vx, p.vy);
+  const moving = speed > 1;
+  const bob = moving ? Math.sin(t * 8 + p.phase) * (r * 0.06) : 0;
+  const x = p.x;
+  const y = p.y + bob;
+  const dirAng = moving ? Math.atan2(p.vy, p.vx) : 0;
+
+  // aura
+  const auraR = r * 1.7 + Math.sin(t * 2 + p.phase) * (r * 0.06);
+  const grad = ctx.createRadialGradient(x, y, r * 0.9, x, y, auraR);
+  grad.addColorStop(0, hexA(p.aura, 0.45));
+  grad.addColorStop(1, hexA(p.aura, 0));
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(x, y, auraR, 0, Math.PI * 2); ctx.fill();
+
+  // cape (mage)
+  if (p.cls === "mage") {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(dirAng + Math.PI / 2);
+    ctx.fillStyle = "#7c3aed";
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.9, 0);
+    ctx.quadraticCurveTo(0, r * 1.5, r * 0.9, 0);
+    ctx.quadraticCurveTo(0, r * 0.4, -r * 0.9, 0);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+  }
+
+  // shadow
+  ctx.beginPath();
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.ellipse(x, p.y + r * 0.85, r * 0.9, r * 0.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // body
+  ctx.beginPath();
+  ctx.fillStyle = p.fill;
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.lineWidth = 4; ctx.strokeStyle = p.outline; ctx.stroke();
+
+  // gloss
+  ctx.beginPath();
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.arc(x - r * 0.35, y - r * 0.4, r * 0.32, 0, Math.PI * 2);
+  ctx.fill();
+
+  // eyes (look toward motion)
+  const eyeOffX = moving ? Math.cos(dirAng) * r * 0.12 : 0;
+  const eyeOffY = moving ? Math.sin(dirAng) * r * 0.12 : 0;
+  const eyeY = y - r * 0.05;
+  const eyeDx = r * 0.32;
+  const eyeR = Math.max(1.8, r * 0.13);
+  // sclera
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(x - eyeDx, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + eyeDx, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+  // pupils
+  ctx.fillStyle = "#1a1a1a";
+  ctx.beginPath(); ctx.arc(x - eyeDx + eyeOffX, eyeY + eyeOffY, eyeR * 0.55, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + eyeDx + eyeOffX, eyeY + eyeOffY, eyeR * 0.55, 0, Math.PI * 2); ctx.fill();
+
+  // beard (dwarf)
+  if (p.race === "dwarf") {
+    ctx.fillStyle = "#fef3c7";
+    ctx.strokeStyle = "rgba(0,0,0,0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.55, y + r * 0.1);
+    ctx.quadraticCurveTo(x, y + r * 1.05, x + r * 0.55, y + r * 0.1);
+    ctx.quadraticCurveTo(x, y + r * 0.45, x - r * 0.55, y + r * 0.1);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // horns (tiefling)
+  if (p.race === "tiefling") {
+    ctx.fillStyle = "#1f2937";
+    for (const sgn of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(x + sgn * r * 0.45, y - r * 0.8);
+      ctx.quadraticCurveTo(x + sgn * r * 0.95, y - r * 1.35, x + sgn * r * 0.55, y - r * 1.5);
+      ctx.quadraticCurveTo(x + sgn * r * 0.3, y - r * 1.1, x + sgn * r * 0.25, y - r * 0.85);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  // helmet (toggle accessory)
+  if (p.helmet) {
+    ctx.fillStyle = "#94a3b8";
+    ctx.strokeStyle = "rgba(0,0,0,0.4)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.02, Math.PI, 2 * Math.PI);
+    ctx.lineTo(x + r * 1.02, y + r * 0.05);
+    ctx.lineTo(x - r * 1.02, y + r * 0.05);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // plume
+    ctx.fillStyle = "#dc2626";
+    ctx.beginPath();
+    ctx.ellipse(x, y - r * 0.95, r * 0.18, r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // weapon orbiting around
+  const orbitR = r + 10;
+  const orbitAng = moving ? dirAng : t * 1.5 + p.phase;
+  const wx = x + Math.cos(orbitAng) * orbitR;
+  const wy = y + Math.sin(orbitAng) * orbitR;
+  ctx.font = `${Math.round(r * 0.8)}px serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.save();
+  ctx.translate(wx, wy);
+  ctx.rotate(orbitAng + Math.PI / 4);
+  ctx.fillText(p.glyph, 0, 0);
+  ctx.restore();
+}
+
+function hexA(hex: string, a: number) {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
