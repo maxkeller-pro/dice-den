@@ -18,7 +18,7 @@ type Game = {
   id: string;
   title: string;
   desc: { fr: string; en: string };
-  to?: "/play" | "/yams";
+  to?: "/play" | "/yams" | "/dnd";
   available: boolean;
   badge?: { fr: string; en: string };
   accent: string;
