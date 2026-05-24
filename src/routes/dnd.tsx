@@ -845,10 +845,10 @@ function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
     ctx.fill();
   }
 
-  // weapon orbiting around
+  // weapon orbiting around (vitesse unifiée)
   const melee = !RANGED[p.cls];
   const orbitR = r + (melee ? 28 : 12);
-  const orbitAng = t * (melee ? 6 : 3) + p.phase;
+  const orbitAng = t * 6 + p.phase;
   // prefer precomputed position from sim, fall back for preview
   const wx = p.weaponX || (x + Math.cos(orbitAng) * orbitR);
   const wy = p.weaponY || (y + Math.sin(orbitAng) * orbitR);
@@ -856,7 +856,8 @@ function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.save();
   ctx.translate(wx, wy);
-  ctx.rotate(orbitAng + Math.PI / 4);
+  // pointe l'arme vers l'extérieur (le long du rayon)
+  ctx.rotate(orbitAng);
   ctx.fillText(p.glyph, 0, 0);
   ctx.restore();
 }
