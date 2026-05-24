@@ -298,27 +298,9 @@ function DnDArena() {
     ctx.strokeStyle = "rgba(91,58,26,0.5)"; ctx.lineWidth = 1;
     ctx.strokeRect(12, 12, ARENA - 24, ARENA - 24);
 
+    const tNow = timeRef.current;
     for (const p of playersRef.current) {
-      // shadow
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.ellipse(p.x, p.y + p.radius * 0.85, p.radius * 0.9, p.radius * 0.35, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // body
-      ctx.beginPath();
-      ctx.fillStyle = p.fill;
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 4; ctx.strokeStyle = p.outline; ctx.stroke();
-      // gloss
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
-      ctx.arc(p.x - p.radius * 0.35, p.y - p.radius * 0.4, p.radius * 0.35, 0, Math.PI * 2);
-      ctx.fill();
-      // weapon glyph
-      ctx.font = `${Math.round(p.radius * 0.9)}px serif`;
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(p.glyph, p.x, p.y + 1);
+      drawHero(ctx, p, tNow);
       // HP bar
       const bw = Math.max(46, p.radius * 2.2), bh = 6;
       const bx = p.x - bw / 2, by = p.y - p.radius - 16;
@@ -337,7 +319,10 @@ function DnDArena() {
   }
 
   function addPlayer() {
-    playersRef.current = [...playersRef.current, makePlayer(name, race, cls, ARENA)];
+    playersRef.current = [
+      ...playersRef.current,
+      makePlayer(name, race, cls, ARENA, { skin: skin ?? undefined, helmet }),
+    ];
     setName("");
     setTick((t) => t + 1);
   }
