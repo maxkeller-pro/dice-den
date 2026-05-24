@@ -274,13 +274,15 @@ function DnDArena() {
           if (p.x + p.radius > ARENA) { p.x = ARENA - p.radius; p.vx = -Math.abs(p.vx); }
           if (p.y - p.radius < 0) { p.y = p.radius; p.vy = Math.abs(p.vy); }
           if (p.y + p.radius > ARENA) { p.y = ARENA - p.radius; p.vy = -Math.abs(p.vy); }
-          // continuous weapon orbit position (melee = plus loin et plus rapide)
+          // continuous weapon orbit position (vitesse unifiée)
           const melee = !RANGED[p.cls];
           const orbitR = p.radius + (melee ? 28 : 12);
-          const orbitAng = timeRef.current * (melee ? 6 : 3) + p.phase;
+          const orbitAng = timeRef.current * 6 + p.phase;
           p.weaponX = p.x + Math.cos(orbitAng) * orbitR;
           p.weaponY = p.y + Math.sin(orbitAng) * orbitR;
         }
+        // remove dead players
+        playersRef.current = ps.filter((p) => p.hp > 0);
         // weapon-touch damage (any class with a melee glyph)
         for (const a of ps) {
           const wR = RANGED[a.cls] ? 10 : 18;
@@ -843,10 +845,10 @@ function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
     ctx.fill();
   }
 
-  // weapon orbiting around
+  // weapon orbiting around (vitesse unifiée)
   const melee = !RANGED[p.cls];
   const orbitR = r + (melee ? 28 : 12);
-  const orbitAng = t * (melee ? 6 : 3) + p.phase;
+  const orbitAng = t * 6 + p.phase;
   // prefer precomputed position from sim, fall back for preview
   const wx = p.weaponX || (x + Math.cos(orbitAng) * orbitR);
   const wy = p.weaponY || (y + Math.sin(orbitAng) * orbitR);
@@ -854,7 +856,8 @@ function drawHero(ctx: CanvasRenderingContext2D, p: Player, t: number) {
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.save();
   ctx.translate(wx, wy);
-  ctx.rotate(orbitAng + Math.PI / 4);
+  // pointe l'arme vers l'extérieur (le long du rayon)
+  ctx.rotate(orbitAng);
   ctx.fillText(p.glyph, 0, 0);
   ctx.restore();
 }
