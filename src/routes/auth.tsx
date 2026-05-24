@@ -19,7 +19,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function Auth() {
-  const { userId, username, isGuest, stats, loading } = useAuth();
+  const { userId, username, isGuest, stats, loading, email: accountEmail } = useAuth();
   const { t } = useT();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [email, setEmail] = useState("");
@@ -82,6 +82,9 @@ function Auth() {
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("auth.signed_in_as")}</p>
               <p className="font-display text-lg">{username || t("auth.player")}</p>
+              {accountEmail && (
+                <p className="mt-1 text-xs text-muted-foreground font-mono">{maskEmail(accountEmail)}</p>
+              )}
             </div>
             {stats && (
               <div className="grid grid-cols-4 gap-2 text-center">
@@ -160,4 +163,14 @@ function Stat({ label, value, accent }: { label: string; value: number; accent?:
       <p className={`font-display text-lg font-bold ${accent ? "text-[var(--cyan)]" : ""}`}>{value}</p>
     </div>
   );
+}
+
+function maskEmail(email: string): string {
+  const at = email.indexOf("@");
+  if (at < 0) return email;
+  const local = email.slice(0, at);
+  const domain = email.slice(at);
+  const visible = local.slice(0, 3);
+  const hidden = "•".repeat(Math.max(0, local.length - visible.length));
+  return `${visible}${hidden}${domain}`;
 }

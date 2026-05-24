@@ -6,6 +6,7 @@ export function useAuth() {
   const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsernameState] = useState<string>("");
   const [isGuest, setIsGuest] = useState<boolean>(true);
+  const [email, setEmail] = useState<string | null>(null);
   const [stats, setStats] = useState<{ elo: number; wins: number; losses: number; games_played: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,6 +22,7 @@ export function useAuth() {
         const { data: sess } = await supabase.auth.getSession();
         const u = sess.session?.user;
         const sessionGuest = Boolean((u as any)?.is_anonymous) || !u?.email;
+        setEmail(u?.email ?? null);
         const { data } = await supabase
           .from("profiles")
           .select("username, is_guest, elo, wins, losses, games_played")
@@ -42,5 +44,5 @@ export function useAuth() {
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, []);
 
-  return { userId, username, setUsernameState, loading, isGuest, stats };
+  return { userId, username, setUsernameState, loading, isGuest, stats, email };
 }
