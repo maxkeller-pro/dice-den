@@ -18,7 +18,7 @@ type Game = {
   id: string;
   title: string;
   desc: { fr: string; en: string };
-  to?: "/play" | "/yams";
+  to?: "/play" | "/yams" | "/dnd";
   available: boolean;
   badge?: { fr: string; en: string };
   accent: string;
@@ -53,12 +53,16 @@ const GAMES: Game[] = [
     accent: "from-amber-500 to-rose-400",
   },
   {
-    id: "more",
-    title: "…",
-    desc: { fr: "D'autres jeux arrivent bientôt.", en: "More games coming soon." },
-    available: false,
-    badge: { fr: "À venir", en: "Coming" },
-    accent: "from-slate-500 to-slate-400",
+    id: "dnd",
+    title: "DnD",
+    desc: {
+      fr: "Dumb and Dangerous — arène fantasy, ronds rebondissants, chaos garanti.",
+      en: "Dumb and Dangerous — fantasy arena, bouncing heroes, pure chaos.",
+    },
+    to: "/dnd",
+    available: true,
+    badge: { fr: "Nouveau", en: "New" },
+    accent: "from-rose-500 to-amber-400",
   },
 ];
 

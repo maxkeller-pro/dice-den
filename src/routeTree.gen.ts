@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PlayRouteImport } from './routes/play'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GamesRouteImport } from './routes/games'
+import { Route as DndRouteImport } from './routes/dnd'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as YamsIndexRouteImport } from './routes/yams.index'
@@ -31,6 +32,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
 const GamesRoute = GamesRouteImport.update({
   id: '/games',
   path: '/games',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DndRoute = DndRouteImport.update({
+  id: '/dnd',
+  path: '/dnd',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -62,6 +68,7 @@ const RoomCodeRoute = RoomCodeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dnd': typeof DndRoute
   '/games': typeof GamesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/play': typeof PlayRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dnd': typeof DndRoute
   '/games': typeof GamesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/play': typeof PlayRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dnd': typeof DndRoute
   '/games': typeof GamesRoute
   '/leaderboard': typeof LeaderboardRoute
   '/play': typeof PlayRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/dnd'
     | '/games'
     | '/leaderboard'
     | '/play'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/dnd'
     | '/games'
     | '/leaderboard'
     | '/play'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/dnd'
     | '/games'
     | '/leaderboard'
     | '/play'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  DndRoute: typeof DndRoute
   GamesRoute: typeof GamesRoute
   LeaderboardRoute: typeof LeaderboardRoute
   PlayRoute: typeof PlayRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/games'
       fullPath: '/games'
       preLoaderRoute: typeof GamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dnd': {
+      id: '/dnd'
+      path: '/dnd'
+      fullPath: '/dnd'
+      preLoaderRoute: typeof DndRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  DndRoute: DndRoute,
   GamesRoute: GamesRoute,
   LeaderboardRoute: LeaderboardRoute,
   PlayRoute: PlayRoute,
