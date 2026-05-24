@@ -222,6 +222,8 @@ function DnDArena() {
   const ARENA = 720;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playersRef = useRef<Player[]>([]);
+  const projectilesRef = useRef<Projectile[]>([]);
+  const hitMapRef = useRef<Map<string, number>>(new Map());
   const [, setTick] = useState(0);
 
   const [name, setName] = useState("");
@@ -260,13 +262,86 @@ function DnDArena() {
       timeRef.current += dt;
       if (running) {
         const ps = playersRef.current;
+        // decrement hit cooldowns
+        const hm = hitMapRef.current;
+        for (const [k, v] of hm) {
+          const nv = v - dt;
+          if (nv <= 0) hm.delete(k); else hm.set(k, nv);
+        }
         for (const p of ps) {
           p.x += p.vx * dt; p.y += p.vy * dt;
           if (p.x - p.radius < 0) { p.x = p.radius; p.vx = Math.abs(p.vx); }
           if (p.x + p.radius > ARENA) { p.x = ARENA - p.radius; p.vx = -Math.abs(p.vx); }
           if (p.y - p.radius < 0) { p.y = p.radius; p.vy = Math.abs(p.vy); }
           if (p.y + p.radius > ARENA) { p.y = ARENA - p.radius; p.vy = -Math.abs(p.vy); }
+          // continuous weapon orbit position
+          const orbitR = p.radius + 12;
+          const orbitAng = timeRef.current * 3 + p.phase;
+          p.weaponX = p.x + Math.cos(orbitAng) * orbitR;
+          p.weaponY = p.y + Math.sin(orbitAng) * orbitR;
         }
+        // weapon-touch damage (any class with a melee glyph)
+        const WEAPON_R = 10;
+        for (const a of ps) {
+          for (const b of ps) {
+            if (a.id === b.id || b.hp <= 0) continue;
+            const dx = b.x - a.weaponX, dy = b.y - a.weaponY;
+            if (dx * dx + dy * dy <= (b.radius + WEAPON_R) ** 2) {
+              const key = `${a.id}:${b.id}`;
+              if (!hm.has(key)) {
+                const dmg = RANGED[a.cls] ? Math.round(CLASSES[a.cls].damage * 0.4) : CLASSES[a.cls].damage;
+                b.hp = Math.max(0, b.hp - dmg);
+                hm.set(key, 0.7);
+              }
+            }
+          }
+        }
+        // ranged shooting
+        for (const p of ps) {
+          const cfg = RANGED[p.cls];
+          if (!cfg || p.hp <= 0) continue;
+          p.shootCd -= dt;
+          if (p.shootCd > 0) continue;
+          // find nearest living enemy within range
+          let best: Player | null = null;
+          let bestD2 = (CLASSES[p.cls].range + 40) ** 2;
+          for (const q of ps) {
+            if (q.id === p.id || q.hp <= 0) continue;
+            const dx = q.x - p.x, dy = q.y - p.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < bestD2) { bestD2 = d2; best = q; }
+          }
+          if (best) {
+            const dx = best.x - p.x, dy = best.y - p.y;
+            const d = Math.hypot(dx, dy) || 1;
+            projectilesRef.current.push({
+              ownerId: p.id,
+              x: p.weaponX, y: p.weaponY,
+              vx: (dx / d) * cfg.speed, vy: (dy / d) * cfg.speed,
+              damage: CLASSES[p.cls].damage,
+              color: cfg.color, kind: cfg.kind,
+              life: 2.2,
+            });
+            p.shootCd = cfg.cooldown;
+          }
+        }
+        // update projectiles
+        const next: Projectile[] = [];
+        for (const pr of projectilesRef.current) {
+          pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt;
+          if (pr.life <= 0 || pr.x < 0 || pr.y < 0 || pr.x > ARENA || pr.y > ARENA) continue;
+          let hit = false;
+          for (const q of ps) {
+            if (q.id === pr.ownerId || q.hp <= 0) continue;
+            const dx = q.x - pr.x, dy = q.y - pr.y;
+            if (dx * dx + dy * dy <= q.radius * q.radius) {
+              q.hp = Math.max(0, q.hp - pr.damage);
+              hit = true; break;
+            }
+          }
+          if (!hit) next.push(pr);
+        }
+        projectilesRef.current = next;
         for (let i = 0; i < ps.length; i++) {
           for (let j = i + 1; j < ps.length; j++) {
             const a = ps[i], b = ps[j];
@@ -320,6 +395,26 @@ function DnDArena() {
     const tNow = timeRef.current;
     for (const p of playersRef.current) {
       drawHero(ctx, p, tNow);
+    }
+    // projectiles
+    for (const pr of projectilesRef.current) {
+      if (pr.kind === "arrow") {
+        const ang = Math.atan2(pr.vy, pr.vx);
+        ctx.save();
+        ctx.translate(pr.x, pr.y); ctx.rotate(ang);
+        ctx.strokeStyle = pr.color; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(6, 0); ctx.stroke();
+        ctx.fillStyle = pr.color;
+        ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(2, -3); ctx.lineTo(2, 3); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      } else {
+        const g = ctx.createRadialGradient(pr.x, pr.y, 0, pr.x, pr.y, 9);
+        g.addColorStop(0, "#fff"); g.addColorStop(0.4, pr.color); g.addColorStop(1, hexA(pr.color, 0));
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(pr.x, pr.y, 9, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    for (const p of playersRef.current) {
       // HP bar
       const bw = Math.max(46, p.radius * 2.2), bh = 6;
       const bx = p.x - bw / 2, by = p.y - p.radius - 16;
@@ -346,15 +441,23 @@ function DnDArena() {
     setTick((t) => t + 1);
   }
   function reset() {
+    projectilesRef.current = [];
+    hitMapRef.current.clear();
     for (const p of playersRef.current) {
       const v = randomVelocity(p.speed);
       p.vx = v.vx; p.vy = v.vy; p.hp = p.maxHp;
       p.x = p.radius + Math.random() * (ARENA - 2 * p.radius);
       p.y = p.radius + Math.random() * (ARENA - 2 * p.radius);
+      p.shootCd = RANGED[p.cls]?.cooldown ?? 0;
     }
     setTick((t) => t + 1);
   }
-  function clearAll() { playersRef.current = []; setTick((t) => t + 1); }
+  function clearAll() {
+    playersRef.current = [];
+    projectilesRef.current = [];
+    hitMapRef.current.clear();
+    setTick((t) => t + 1);
+  }
 
   const previewHp = useMemo(() => raceDef.hp, [raceDef]);
 
