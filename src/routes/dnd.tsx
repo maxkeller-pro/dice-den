@@ -171,8 +171,8 @@ type Projectile = {
 };
 
 const RANGED: Partial<Record<ClassId, { cooldown: number; speed: number; kind: "arrow" | "magic"; color: string }>> = {
-  mage:   { cooldown: 1.4, speed: 260, kind: "magic", color: "#a78bfa" },
-  archer: { cooldown: 0.9, speed: 360, kind: "arrow", color: "#3a1e10" },
+  mage:   { cooldown: 1.0, speed: 260, kind: "magic", color: "#a78bfa" },
+  archer: { cooldown: 1.0, speed: 360, kind: "arrow", color: "#3a1e10" },
 };
 
 const FUNNY_NAMES = [
@@ -312,7 +312,8 @@ function DnDArena() {
             if (d2 < bestD2) { bestD2 = d2; best = q; }
           }
           if (best) {
-            const dx = best.x - p.x, dy = best.y - p.y;
+            // tire dans la direction de l'arme (radial depuis le joueur)
+            const dx = p.weaponX - p.x, dy = p.weaponY - p.y;
             const d = Math.hypot(dx, dy) || 1;
             projectilesRef.current.push({
               ownerId: p.id,
